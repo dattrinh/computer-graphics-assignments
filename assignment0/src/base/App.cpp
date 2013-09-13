@@ -23,6 +23,14 @@ using namespace std;
 // do not need to be visible outside this file.
 namespace {
 
+static const float translation_step = 0.05f;
+
+enum TranslationIndices {
+	INDEX_X = 0,
+	INDEX_Y = 1,
+	INDEX_Z = 2,
+};
+
 enum VertexShaderAttributeLocations {
 	ATTRIB_POSITION = 0,
 	ATTRIB_NORMAL = 1,
@@ -217,14 +225,40 @@ bool App::handleEvent(const Window::Event& ev) {
 
 	if (ev.type == Window::EventType_KeyDown) {
 		// YOUR CODE HERE (R1)
-		// React to user input and move the model.
-		// Look in framework/gui/Keys.hpp for more key codes.
-		// Visual Studio tip: you can right-click an identifier like FW_KEY_HOME
-		// and "Go to definition" to jump directly to where the identifier is defined.
+		// React to user input and move the model. Look in framework/gui/Keys.hpp for more key codes.
+		// Visual Studio tip: you can right-click an identifier like FW_KEY_HOME  and "Go to definition" to jump directly to where the identifier is defined.
 		if (ev.key == FW_KEY_HOME)
+		{
 			camera_rotation_angle_ -= 0.05 * FW_PI;
+		}
 		else if (ev.key == FW_KEY_END)
+		{
 			camera_rotation_angle_ += 0.05 * FW_PI;
+		}
+		else if (ev.key ==  FW_KEY_RIGHT) 
+		{
+			translation[INDEX_X] += translation_step;
+		}
+		else if (ev.key ==  FW_KEY_LEFT) 
+		{
+			translation[INDEX_X] -= translation_step;
+		}
+		else if (ev.key ==  FW_KEY_UP) 
+		{
+			translation[INDEX_Y] += translation_step;
+		}
+		else if (ev.key ==  FW_KEY_DOWN) 
+		{
+			translation[INDEX_Y] -= translation_step;
+		}
+		else if (ev.key ==  FW_KEY_PAGE_UP) 
+		{
+			translation[INDEX_Z] += translation_step;
+		}
+		else if (ev.key ==  FW_KEY_PAGE_DOWN) 
+		{
+			translation[INDEX_Z] -= translation_step;
+		}
 	}
 	
 	if (ev.type == Window::EventType_KeyUp) {
@@ -381,9 +415,10 @@ void App::render() {
 	glDrawArrays(GL_TRIANGLES, 0, SIZEOF_ARRAY(reference_plane_data));
 	
 	// YOUR CODE HERE (R1)
-	// Set the model space -> world space transform to translate the model according to user input.
-	Mat4f modelToWorld;
-	
+	// Set the model space -> world space transform to translate the model according to user input.		
+	Mat4f modelToWorld; // Creates a new matrix with the value set to the identity transform.	
+	modelToWorld.setCol(3, Vec4f(translation, 1)); // Notes: Opengl Uses column-major matrix ordering
+
 	// Draw the model with your model-to-world transformation.
 	glUniformMatrix4fv(gl_.model_to_world_uniform, 1, GL_FALSE, modelToWorld.getPtr());
 	glBindVertexArray(gl_.dynamic_vao);

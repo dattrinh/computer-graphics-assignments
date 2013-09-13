@@ -64,6 +64,8 @@ private:
 
 	// YOUR CODE HERE (R1)
 	// Add a class member to store the current translation.
+	Vec3f				translation;
+
 
 	// EXTRA:
 	// For animation extra credit you can use the framework's Timer class.
