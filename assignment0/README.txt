@@ -57,7 +57,7 @@ Hours spent on extra credit (approx.):
 
                             opened this file (0p): done
                          R1 Moving an object (1p): done
-R2 Generating a simple cone mesh and normals (3p): not done
+R2 Generating a simple cone mesh and normals (3p): done
   R3 Converting mesh data for OpenGL viewing (3p): done
            R4 Loading a large mesh from file (3p): done
 
