@@ -73,13 +73,18 @@ vector<Vertex> unpackIndexedData(
 	for (auto& f : faces) {
 
 		// YOUR CODE HERE (R3)
-		// Unpack the indexed data into a vertex array. For every face, you have to
-		// create three vertices and add them to the vector 'vertices'.
+		// Unpack the indexed data into a vertex array. For every face, you have to create three vertices and add them to the vector 'vertices'.
 
 		// f[0] is the index of the position of the first vertex
 		// f[1] is the index of the normal of the first vertex
 		// f[2] is the index of the position of the second vertex
-		// ...
+		// ...		
+		Vertex v0 = { positions[f[0]], normals[f[1]] };
+		Vertex v1 = { positions[f[2]], normals[f[3]] };
+		Vertex v2 = { positions[f[4]], normals[f[5]] };
+		vertices.push_back(v0);
+		vertices.push_back(v1);
+		vertices.push_back(v2);
 	}
 
 	return vertices;
