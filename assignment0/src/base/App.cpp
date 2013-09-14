@@ -93,6 +93,7 @@ vector<Vertex> unpackIndexedData(
 // This is for testing your unpackIndexedData implementation.
 // You should get a tetrahedron like in example.exe.
 vector<Vertex> loadIndexedDataModel() {
+	
 	static const Vec3f point_data[] = {
 		Vec3f(0.0f, 0.407f, 0.0f),
 		Vec3f(0.0f, -0.3f, -0.5f),
@@ -142,7 +143,7 @@ vector<Vertex> loadUserGeneratedModel() {
 		// v0.position = ...
 		// Calculate the normal of the face from the positions and use it for all vertices.
 		// v0.normal = v1.normal = v2.normal = ...;
-		//
+		// 
 		// Some hints:
 		// - Try just making a triangle in fixed coordinates at first.
 		// - "FW::cos(angle_increment * i) * radius" gives you the X-coordinate
@@ -451,16 +452,25 @@ vector<Vertex> App::loadObjFileModel(string filename) {
 
 	// Open input file stream for reading.
 	ifstream input(filename, ios::in);
-
+	
 	// Read the file line by line.
 	string line;
+	unsigned linenum = 0;
+
+	/* Added unused vectors to avoid indexing errors >> Note that in C++ we index things starting from 0, but face indices in OBJ format start from 1.  */
+	positions.push_back(Vec3f(0,0,0));
+	normals.push_back(Vec3f(0,0,0));
+	
 	while(getline(input, line)) {
 		// Replace any '/' characters with spaces ' ' so that all of the
 		// values we wish to read are separated with whitespace.
-		for (auto& c : line)
-			if (c == '/')
-				c = ' ';
-			
+
+		/* We dont need this one anymore. */
+		/*for (auto& c : line) if (c == '/') 	c = ' ';*/
+		
+		/* For debugging and checking read line */
+		linenum++;
+
 		// Temporary objects to read data into.
 		array<unsigned, 6>  f; // Face index array
 		Vec3f               v;
@@ -473,14 +483,24 @@ vector<Vertex> App::loadObjFileModel(string filename) {
 		// It identifies the type of object (vertex or normal or ...)
 		iss >> s;
 
+		char *line_ptr = (char*) line.c_str();
+		float i0, i1, i2;
+		unsigned a_, b_, c_, d_, e_, f_, g_, h_, i_;
+
 		if (s == "v") { // vertex position
 			// YOUR CODE HERE (R4)
 			// Read the three vertex coordinates (x, y, z) into 'v'.
 			// Store a copy of 'v' in 'positions'.
-			// See std::vector documentation for push_back.
+			// See std::vector documentation for push_back.			
+			sscanf(line_ptr, "v %f %f %f", &i0, &i1, &i2);
+			v.set(Vec3f(i0, i1, i2));
+			positions.push_back(v);
 		} else if (s == "vn") { // normal
 			// YOUR CODE HERE (R4)
 			// Similar to above.
+			sscanf(line_ptr, "vn %f %f %f", &i0, &i1, &i2);
+			v.set(Vec3f(i0, i1, i2));
+			normals.push_back(v);
 		} else if (s == "f") { // face
 			// YOUR CODE HERE (R4)
 			// Read the indices representing a face and store it in 'faces'.
@@ -492,9 +512,10 @@ vector<Vertex> App::loadObjFileModel(string filename) {
 			//
 			// Since we are not using textures in this exercise, you can ignore
 			// the texture indices by reading them into a temporary variable.
+			sscanf(line_ptr, "f %d/%d/%d %d/%d/%d %d/%d/%d", &f[0], &b_, &f[1], &f[2], &e_, &f[3], &f[4], &h_, &f[5]);						
+			faces.push_back(f);
 
 			unsigned sink; // Temporary variable for reading the unused texture indices.
-
 			// Note that in C++ we index things starting from 0, but face indices in OBJ format start from 1.
 			// If you don't adjust for that, you'll index past the range of your vectors and get a crash.
 

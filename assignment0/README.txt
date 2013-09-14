@@ -5,7 +5,7 @@
 
 Student name: Trinh Ba Dat
 Student number: 84475B
-Hours spent on requirements (approx.): (R1) 2h
+Hours spent on requirements (approx.): (R1) 2h + (R3) 1h + (R4) 2.5h
 Hours spent on extra credit (approx.):
 
 # First, some questions about where you come from and how you got started.
@@ -20,7 +20,7 @@ Hours spent on extra credit (approx.):
 	This is 5th year of my studies
 
 - Is ME-C3100 a mandatory course for you? 
-	No, it is not.
+	No
 
 - Have you had something to do with graphics before? Other studies, personal interests, work? 
 	No
@@ -59,7 +59,7 @@ Hours spent on extra credit (approx.):
                          R1 Moving an object (1p): done
 R2 Generating a simple cone mesh and normals (3p): not done
   R3 Converting mesh data for OpenGL viewing (3p): done
-           R4 Loading a large mesh from file (3p): not done
+           R4 Loading a large mesh from file (3p): done
 
 # Did you do any extra credit work?
 
