@@ -154,6 +154,11 @@ vector<Vertex> loadUserGeneratedModel() {
 		// Then we add the vertices to the array.
 		// .push_back() grows the size of the vector by one, copies its argument,
 		// and places the copy at the back of the vector.
+		v0.position =  Vec3f( 0.0f,  0.0f, 0.0f);
+		v1.position =  Vec3f(FW::cos(angle_increment * i) * radius, -1.0f, FW::sin(angle_increment * i) * radius);
+		v2.position =  Vec3f(FW::cos(angle_increment * (i+1)) * radius, -1.0f, FW::sin(angle_increment * (i+1)) * radius);
+		v0.normal = v1.normal = v2.normal = Vec3f(0.0f, 0.0f, -1.0f);
+
 		vertices.push_back(v0); vertices.push_back(v1); vertices.push_back(v2);
 	}
 	return vertices;
