@@ -26,6 +26,8 @@ namespace {
 static const float translation_step = 0.05f;
 static const float scaling_step = 0.01f;
 static const float rotation_step = 1.00f;
+F32 elapsed = 0;
+static bool ANIMATION_ENABLED = false;
 
 enum TranslationIndices {
 	INDEX_X = 0,
@@ -203,6 +205,16 @@ App::App(void)
 }
 
 bool App::handleEvent(const Window::Event& ev) {
+	
+	if (ANIMATION_ENABLED) {
+		elapsed += timer_.end();
+		if (elapsed*1000 >= 20) {
+			elapsed= 0;
+			camera_rotation_angle_ += 0.01 * FW_PI;
+		}
+		timer_.start();
+	}
+	
 	if (model_changed_)	{
 		model_changed_ = false;
 		switch (current_model_)
@@ -298,6 +310,10 @@ bool App::handleEvent(const Window::Event& ev) {
 		else if (ev.key ==  FW_KEY_Z) 
 		{
 			rotation_z_ += rotation_step;
+		}
+		else if (ev.key ==  FW_KEY_R) 
+		{
+			ANIMATION_ENABLED =! ANIMATION_ENABLED;
 		}
 	}
 	
