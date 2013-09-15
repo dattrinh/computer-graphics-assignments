@@ -24,6 +24,8 @@ using namespace std;
 namespace {
 
 static const float translation_step = 0.05f;
+static const float scaling_step = 0.01f;
+static const float rotation_step = 1.00f;
 
 enum TranslationIndices {
 	INDEX_X = 0,
@@ -163,11 +165,9 @@ vector<Vertex> loadUserGeneratedModel() {
 		Vec3f normal = cross(edge1, edge2);
 
 		v0.normal = v1.normal = v2.normal = normal;
-
 		v0.normal.normalize();
 		v1.normal.normalize();
 		v2.normal.normalize();
-
 		vertices.push_back(v0); vertices.push_back(v1); vertices.push_back(v2);
 	}
 	return vertices;
@@ -257,27 +257,47 @@ bool App::handleEvent(const Window::Event& ev) {
 		}
 		else if (ev.key ==  FW_KEY_RIGHT) 
 		{
-			translation[INDEX_X] += translation_step;
+			translation_[INDEX_X] += translation_step;
 		}
 		else if (ev.key ==  FW_KEY_LEFT) 
 		{
-			translation[INDEX_X] -= translation_step;
+			translation_[INDEX_X] -= translation_step;
 		}
 		else if (ev.key ==  FW_KEY_UP) 
 		{
-			translation[INDEX_Y] += translation_step;
+			translation_[INDEX_Y] += translation_step;
 		}
 		else if (ev.key ==  FW_KEY_DOWN) 
 		{
-			translation[INDEX_Y] -= translation_step;
+			translation_[INDEX_Y] -= translation_step;
 		}
 		else if (ev.key ==  FW_KEY_PAGE_UP) 
 		{
-			translation[INDEX_Z] += translation_step;
+			translation_[INDEX_Z] += translation_step;
 		}
 		else if (ev.key ==  FW_KEY_PAGE_DOWN) 
 		{
-			translation[INDEX_Z] -= translation_step;
+			translation_[INDEX_Z] -= translation_step;
+		}
+		else if (ev.key ==  FW_KEY_MINUS) 
+		{
+			scaling_ -=	scaling_step;
+		}
+		else if (ev.key ==  FW_KEY_PLUS) 
+		{
+			scaling_ +=	scaling_step;
+		}
+		else if (ev.key ==  FW_KEY_X) 
+		{
+			rotation_x_ += rotation_step;
+		}
+		else if (ev.key ==  FW_KEY_Y) 
+		{
+			rotation_y_ += rotation_step;
+		}
+		else if (ev.key ==  FW_KEY_Z) 
+		{
+			rotation_z_ += rotation_step;
 		}
 	}
 	
@@ -308,6 +328,12 @@ bool App::handleEvent(const Window::Event& ev) {
 }
 
 void App::initRendering() {
+	
+	scaling_ = 1.00;
+	rotation_x_ = 0.00;
+	rotation_y_ = 0.00;
+	rotation_z_ = 0.00;
+	
 	// Ask the Nvidia framework for the GLContext object associated with the window.
 	// As a side effect, this initializes the OpenGL context and lets us call GL functions.
 	auto ctx = window_.getGL();
@@ -434,11 +460,50 @@ void App::render() {
 	glBindVertexArray(gl_.static_vao);
 	glDrawArrays(GL_TRIANGLES, 0, SIZEOF_ARRAY(reference_plane_data));
 	
+	static const float angle = 2 * FW_PI / 360;
+
+	/* Performs the scaling FIRST, and THEN the rotation, and THEN the translation */
+	Mat4f scaling_m;
+	scaling_m.setCol(0, Vec4f(scaling_, 0, 0, 0));
+	scaling_m.setCol(1, Vec4f(0, scaling_, 0, 0));
+	scaling_m.setCol(2, Vec4f(0, 0, scaling_, 0));
+	scaling_m.setCol(3, Vec4f(0, 0, 0, 1));
+
+	Mat4f rotation_xm;
+	float phi = angle*rotation_x_;
+	rotation_xm.setCol(0, Vec4f(1, 0, 0, 0));
+	rotation_xm.setCol(1, Vec4f(0, FW::cos(phi), -FW::sin(phi), 0));
+	rotation_xm.setCol(2, Vec4f(0, FW::sin(phi), FW::cos(phi), 0));
+	rotation_xm.setCol(3, Vec4f(0, 0, 0, 1));
+
+	Mat4f rotation_ym;
+	float theta = angle*rotation_y_;
+	rotation_ym.setCol(0, Vec4f(FW::cos(theta), 0, FW::sin(theta), 0));
+	rotation_ym.setCol(1, Vec4f(0, 1, 0, 0));
+	rotation_ym.setCol(2, Vec4f(FW::sin(theta), 0, -FW::cos(theta), 0));
+	rotation_ym.setCol(3, Vec4f(0, 0, 0, 1));
+
+	Mat4f rotation_zm;
+	float psi = angle*rotation_z_;
+	rotation_zm.setCol(0, Vec4f(FW::cos(psi), -FW::sin(psi), 0, 0));
+	rotation_zm.setCol(1, Vec4f(FW::sin(psi), FW::cos(psi), 0, 0));
+	rotation_zm.setCol(2, Vec4f(0, 0, 1, 0));
+	rotation_zm.setCol(3, Vec4f(0, 0, 0, 1));
+
+	Mat4f rotation_m = rotation_xm * rotation_ym * rotation_zm;
+
+	Mat4f translation_m;
+	translation_m.setCol(3, Vec4f(translation_, 1));
+
 	// YOUR CODE HERE (R1)
 	// Set the model space -> world space transform to translate the model according to user input.		
 	Mat4f modelToWorld; // Creates a new matrix with the value set to the identity transform.	
-	modelToWorld.setCol(3, Vec4f(translation, 1)); // Notes: Opengl Uses column-major matrix ordering
+	//modelToWorld.setCol(3, Vec4f(translation_, 1)); // Notes: Opengl Uses column-major matrix ordering
 
+	modelToWorld = modelToWorld * translation_m;
+	modelToWorld = modelToWorld * rotation_m;
+	modelToWorld = modelToWorld * scaling_m;
+	
 	// Draw the model with your model-to-world transformation.
 	glUniformMatrix4fv(gl_.model_to_world_uniform, 1, GL_FALSE, modelToWorld.getPtr());
 	glBindVertexArray(gl_.dynamic_vao);
@@ -456,6 +521,34 @@ void App::render() {
 	common_ctrl_.message(sprintf("Camera is at (%.2f %.2f %.2f) looking towards origin.",
 		-FW::sin(camera_rotation_angle_) * camera_distance, 0.0f,
 		-FW::cos(camera_rotation_angle_) * camera_distance), "camerainfo");
+}
+
+vector<Vertex> App::loadPLYFileModel(string filename) {
+	window_.showModalMessage(sprintf("Loading mesh from '%s'...", filename.c_str()));
+
+	vector<Vec3f> positions, normals;
+	vector<array<unsigned, 6>> faces;
+
+	/* Open input file stream for reading. */
+	ifstream input(filename, ios::in);
+
+	/* Read the file line by line. */
+	string line;
+	unsigned linenum = 0;
+
+	/* Added unused vectors to avoid indexing errors >> Note that in C++ we index things starting from 0, but face indices in OBJ format start from 1.  */
+	positions.push_back(Vec3f(0,0,0));
+	normals.push_back(Vec3f(0,0,0));
+
+	while(getline(input, line)) {
+		linenum++;
+
+		/* PARSE HEADER */
+
+	}
+
+	common_ctrl_.message(("Loaded mesh from " + filename).c_str());
+	return unpackIndexedData(positions, normals, faces);
 }
 
 vector<Vertex> App::loadObjFileModel(string filename) {

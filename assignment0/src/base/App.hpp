@@ -64,14 +64,23 @@ private:
 
 	// YOUR CODE HERE (R1)
 	// Add a class member to store the current translation.
-	Vec3f				translation;
+	Vec3f				translation_;
+
+	float				scaling_;
+	float				rotation_x_;
+	float				rotation_y_;
+	float				rotation_z_;
+
+
+	
+	std::vector<Vertex>	loadPLYFileModel(std::string filename);
 
 
 	// EXTRA:
 	// For animation extra credit you can use the framework's Timer class.
 	// The .start() and .unstart() methods start and stop the timer; when it's
 	// running, .end() gives you seconds passed after last call to .end().
-	// Timer timer_;
+	Timer timer_;
 };
 
 }

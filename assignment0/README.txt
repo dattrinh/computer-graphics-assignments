@@ -65,6 +65,15 @@ R2 Generating a simple cone mesh and normals (3p): done
 
 (Describe what you did and, if there was a substantial amount of work involved, how you did it. Also describe how to use/activate your extra features, if they are interactive.)
 
+	Version control and log file included
+	Implemented rotate and scale transforms
+	Implemented better camera
+	Added animation
+	Implemented viewport correction
+	Added support for loading PLY file format and included a model for testing
+	
+
+
 # Are there any known problems/bugs remaining in your code?
 
 (Please provide a list of the problems. If possible, describe what you think the cause is, how you have attempted to diagnose or fix the problem, and how you would attempt to diagnose or fix it if you had more time or motivation. This is important: we are more likely to assign partial credit if you help us understand what's going on.)
