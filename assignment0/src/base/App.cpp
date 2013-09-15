@@ -435,6 +435,13 @@ void App::initRendering() {
 }
 
 void App::render() {
+
+	// Simple viewpoint correction when window is resized
+	S32 width = window_.getSize()[0]; 
+	S32 height = window_.getSize()[1]; 
+	S32 max_value = (width >= height) ? height: width;
+	glViewport((width-max_value)/2, (height - max_value)/2, max_value, max_value);
+
 	// Clear screen.
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
