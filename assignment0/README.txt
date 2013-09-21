@@ -5,8 +5,8 @@
 
 Student name: Trinh Ba Dat
 Student number: 84475B
-Hours spent on requirements (approx.): (R1) 2h + (R3) 1h + (R4) 2.5h
-Hours spent on extra credit (approx.):
+Hours spent on requirements (approx.): 8h  
+Hours spent on extra credit (approx.): 8h
 
 # First, some questions about where you come from and how you got started.
 # Your answers in this section will be used to improve the course.
@@ -65,19 +65,35 @@ R2 Generating a simple cone mesh and normals (3p): done
 
 (Describe what you did and, if there was a substantial amount of work involved, how you did it. Also describe how to use/activate your extra features, if they are interactive.)
 
-	Version control and log file included
+	Version control
+		- The assignment files are host on github and public link to repo is: https://github.com/dattrinh/computer-graphics-assignments.git
+		- Log file is also included as required
+		
 	Implemented rotate and scale transforms
-	Implemented better camera
-	Added animation
-	Implemented viewport correction
-	Added support for loading PLY file format and included a model for testing
+		- this demonstrates rotations only in one direction
+		- keys x/y/z to rotate among axis x/y/z
+		- keys "+"/"-" to scale in/out
+		
+	Added easy camera animation
+		- press 'r' key to start or stop camera rotation
 	
-
-
+	Implemented easy viewpoint correction
+		- This will correct viewpoint when window size is changed
+	
+	Added limited support for loading PLY file format and included a model for testing
+		- Due to lack of time the limited function is provided with following features:
+			- the loading does not handle properties. It assumes that properties are defined as x, y, z.
+			- it supports only for triangle faces
+			- it has not clever handler for property lists of faces. 
+			- no calculation of normals provided
+			
 # Are there any known problems/bugs remaining in your code?
 
 (Please provide a list of the problems. If possible, describe what you think the cause is, how you have attempted to diagnose or fix the problem, and how you would attempt to diagnose or fix it if you had more time or motivation. This is important: we are more likely to assign partial credit if you help us understand what's going on.)
 
+	Some bugs in loading support for PLY
+		- Overall, the object was loaded and displayed correctly. The sample object looks like tennis shoe, but there are some bugs in display of faces. I don't enough time to figure out what's wrong. 
+	
 # Did you collaborate with anyone in the class?
 	No
 
@@ -87,3 +103,7 @@ R2 Generating a simple cone mesh and normals (3p): done
 
 (Was the assignment too long? Too hard? Fun or boring? Did you learn something, or was it a total waste of time? Can we do something differently to help you learn? Please be brutally honest; we won't take it personally.)
 
+	Very interesting subject. I would like to do all assignments. But due to lack of time some of them was be left. 
+	
+	It took me a lot of time to find out how calculation of matrix works and also with this framework. Instruction came to late in Piazza.
+	
