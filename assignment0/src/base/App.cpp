@@ -232,7 +232,29 @@ bool App::handleEvent(const Window::Event& ev) {
 			{
 				auto filename = window_.showFileLoadDialog("Load new mesh");
 				if (filename.getLength()) {
-					vertices_ = loadObjFileModel(filename.getPtr());
+					
+					String name = filename.getPtr();
+					
+					Array<String> pieces;
+					name.split('.', pieces);
+
+					if (pieces.getSize() < 2) 
+					{
+						assert(false && "invalid model type");
+						current_model_ = MODEL_EXAMPLE;
+						model_changed_ = true;
+					}
+					else {
+						if (pieces[1] == "obj") {
+							vertices_ = loadObjFileModel(filename.getPtr());
+						} else if (pieces[1] == "ply") {
+							vertices_ = loadPLYFileModel(filename.getPtr());
+						} else {
+							assert(false && "invalid model type");
+							current_model_ = MODEL_EXAMPLE;
+							model_changed_ = true;
+						}
+					}
 				} else {
 					current_model_ = MODEL_EXAMPLE;
 					model_changed_ = true;
@@ -546,18 +568,28 @@ void App::render() {
 		-FW::cos(camera_rotation_angle_) * camera_distance), "camerainfo");
 }
 
+enum PlyPart {
+	PLY_HEADER = 0,
+	PLY_BODY
+};
+
 vector<Vertex> App::loadPLYFileModel(string filename) {
 	window_.showModalMessage(sprintf("Loading mesh from '%s'...", filename.c_str()));
 
 	vector<Vec3f> positions, normals;
 	vector<array<unsigned, 6>> faces;
 
+	array<unsigned, 6>  f; // Face index array
+	Vec3f               v;
+
 	/* Open input file stream for reading. */
 	ifstream input(filename, ios::in);
 
 	/* Read the file line by line. */
-	string line;
+	string line, s, s1;
+	PlyPart part = PLY_HEADER;
 	unsigned linenum = 0;
+	unsigned verticesNum = 0, facesNum = 0;
 
 	/* Added unused vectors to avoid indexing errors >> Note that in C++ we index things starting from 0, but face indices in OBJ format start from 1.  */
 	positions.push_back(Vec3f(0,0,0));
@@ -566,8 +598,66 @@ vector<Vertex> App::loadPLYFileModel(string filename) {
 	while(getline(input, line)) {
 		linenum++;
 
-		/* PARSE HEADER */
+		char *line_ptr = (char*) line.c_str();	
+		float i0, i1, i2;
+		unsigned n, a, b, c, normalNum = 0;
 
+		/* PARSE HEADER */
+		istringstream        iss(line);
+		iss >> s;
+
+		/* end of parse of header */
+		if (s == "end_header") {
+			part = PLY_BODY;
+		}
+		else {
+			switch (part) {
+				case PLY_HEADER:
+					if (s == "element") {
+						
+						iss >> s1;
+
+						if (s1 == "vertex"){
+							sscanf(line_ptr, "element vertex %d", &verticesNum);
+						}
+						else if (s1 == "face"){
+							sscanf(line_ptr, "element face %d", &facesNum);
+						}
+					}
+					break;
+
+				case PLY_BODY:				
+					/* vertices */
+					if (verticesNum > 0)
+					{
+						sscanf(line_ptr, "%f %f %f", &i0, &i1, &i2);
+						v.set(Vec3f(i0, i1, i2));
+						positions.push_back(v);
+						verticesNum--;
+					}
+					/* faces */
+					else if (facesNum > 0)
+					{
+						sscanf(line_ptr, "%d %d %d %d", &n, &a, &b, &c);
+
+						/* use same normal to all faces */						
+						v.set(Vec3f(0, 0, 1));
+						normals.push_back(v);
+					
+						f[0] = a;
+						f[1] = normalNum; // normal
+						f[2] = b;
+						f[3] = normalNum; // normal
+						f[4] = c;
+						f[5] = normalNum; // normal
+						faces.push_back(f);
+
+						facesNum--;
+						normalNum++;
+					}
+					break;
+			}
+		}
 	}
 
 	common_ctrl_.message(("Loaded mesh from " + filename).c_str());
